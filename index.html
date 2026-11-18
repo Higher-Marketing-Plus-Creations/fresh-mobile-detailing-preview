@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fresh Mobile Detailing — Scroll Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   FRESH MOBILE DETAILING — scroll hero + floating background
+   Brand: Vivid Azure #12A8FF / Black / White · Font: Gotham
+   (Montserrat is the free stand-in; Gotham is used first if
+   it's installed/loaded on the live site.)
+   ========================================================= */
+:root{
+  --azure:#12A8FF;
+  --azure-soft:#6fcbff;
+  --ink:#000;
+  --paper:#fff;
+  --muted:rgba(255,255,255,.64);
+  --line:rgba(255,255,255,.12);
+  --font:"Gotham","Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#000;scroll-behavior:auto}
+body{font-family:var(--font);color:#fff;background:#000;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+
+/* ---------- Floating background (after hero) ---------- */
+#fmd-float{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0}
+
+/* preview-only background switcher */
+#fmd-bgswitch{position:fixed;right:20px;bottom:20px;z-index:70;display:flex;align-items:center;gap:4px;padding:5px 5px 5px 16px;border-radius:999px;
+  background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;pointer-events:none;font:600 12px var(--font);letter-spacing:.04em}
+#fmd-bgswitch.on{opacity:1;transform:none;pointer-events:auto}
+#fmd-bgswitch span{color:var(--muted);margin-right:6px;text-transform:uppercase;font-size:10px;letter-spacing:.2em}
+#fmd-bgswitch button{font:inherit;color:#fff;background:none;border:0;padding:9px 14px;border-radius:999px;cursor:pointer;transition:background .25s,color .25s}
+#fmd-bgswitch button.sel{background:var(--azure);color:#00131f}
+
+/* ---------- Nav ---------- */
+.fmd-nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(18px,4vw,48px);transition:background .4s,backdrop-filter .4s,border-color .4s;border-bottom:1px solid transparent}
+.fmd-nav.is-solid{background:rgba(0,0,0,.55);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-color:var(--line)}
+.fmd-logo{display:flex;align-items:baseline;gap:8px;text-decoration:none}
+.fmd-logo strong{font-weight:900;font-size:20px;letter-spacing:.16em}
+.fmd-logo strong i{font-style:normal;color:var(--azure)}
+.fmd-logo span{font-size:10px;font-weight:600;letter-spacing:.32em;color:var(--muted);text-transform:uppercase}
+.fmd-nav .fmd-btn{padding:11px 18px;font-size:13px}
+
+/* ---------- Buttons ---------- */
+.fmd-btn{display:inline-flex;align-items:center;gap:10px;padding:15px 24px;border-radius:999px;font-weight:700;font-size:14px;letter-spacing:.04em;
+  text-decoration:none;white-space:nowrap;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .25s,border-color .25s}
+.fmd-btn svg{width:16px;height:16px}
+.fmd-btn--primary{background:var(--azure);color:#00131f;box-shadow:0 12px 34px -10px rgba(18,168,255,.85),inset 0 1px 0 rgba(255,255,255,.45)}
+.fmd-btn--primary:hover{transform:translateY(-2px);box-shadow:0 18px 44px -10px rgba(18,168,255,1),inset 0 1px 0 rgba(255,255,255,.5)}
+.fmd-btn--ghost{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);color:#fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.fmd-btn--ghost:hover{border-color:var(--azure);transform:translateY(-2px)}
+
+/* =========================================================
+   HERO (pinned scroll sequence)
+   ========================================================= */
+.fmd-hero{position:relative;height:640vh;z-index:2}
+.fmd-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;isolation:isolate}
+
+.fmd-glow{position:absolute;left:50%;top:50%;width:140vmax;height:80vmax;transform:translate(-50%,-46%);z-index:-3;
+  background:radial-gradient(closest-side,rgba(18,168,255,.42),rgba(18,168,255,.12) 42%,rgba(18,168,255,.03) 62%,transparent 75%);
+  opacity:var(--glow,.15);will-change:opacity}
+.fmd-beams{position:absolute;inset:0;z-index:-3;opacity:var(--beams,0);
+  background:
+    conic-gradient(from 200deg at 50% -10%,transparent 0deg,rgba(18,168,255,.10) 12deg,transparent 24deg,transparent 40deg,rgba(255,255,255,.05) 48deg,transparent 58deg,transparent 360deg);
+  mix-blend-mode:screen}
+.fmd-floorline{position:absolute;left:0;right:0;top:calc(50% + min(22vw,200px));height:1px;z-index:-2;
+  background:linear-gradient(90deg,transparent,rgba(18,168,255,.55),transparent);opacity:var(--clean,0);filter:blur(.3px)}
+.fmd-vignette{position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse 80% 70% at 50% 48%,transparent 55%,rgba(0,0,0,.9))}
+.fmd-grain{position:absolute;inset:-60%;z-index:6;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:fmd-grain 1.2s steps(6) infinite}
+@keyframes fmd-grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-2%)}60%{transform:translate(-2%,-4%)}80%{transform:translate(4%,2%)}100%{transform:translate(0,0)}}
+
+/* giant word behind the car */
+.fmd-word{position:absolute;left:50%;top:47%;z-index:-1;pointer-events:none;white-space:nowrap;
+  font-weight:900;font-size:clamp(96px,24vw,380px);line-height:.8;letter-spacing:-.03em;
+  transform:translate(-50%,-50%) scale(var(--wscale,1));
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,var(--wstroke,.0));
+  will-change:transform}
+.fmd-word span{display:block;
+  background:linear-gradient(100deg,#fff 0%,#fff 38%,var(--azure) 50%,#fff 62%,#fff 100%);background-size:250% 100%;
+  background-position:var(--wshine,100%) 0;-webkit-background-clip:text;background-clip:text;
+  opacity:var(--wfill,1)}
+.fmd-kicker{position:absolute;left:50%;top:calc(47% + clamp(60px,12vw,190px));transform:translateX(-50%);
+  font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:.5em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;opacity:var(--kick,1);padding-left:.5em}
+.fmd-kicker b{color:var(--azure);font-weight:700}
+
+/* car */
+.fmd-car{position:relative;z-index:2;width:min(640px,88vw,80vh);aspect-ratio:794/652;margin-top:-1vh;
+  transform:scale(var(--cscale,1));transform-origin:50.4% 14.6%;will-change:transform,opacity}
+#fmd-icv{position:absolute;inset:0;width:100%;height:100%;z-index:3;visibility:hidden;pointer-events:none}
+.fmd-iris{position:absolute;z-index:4;border-radius:50%;pointer-events:none;opacity:0;
+  box-shadow:0 0 0 2px rgba(18,168,255,.9),0 0 50px 6px rgba(18,168,255,.55),inset 0 0 70px rgba(18,168,255,.35)}
+.fmd-car canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+
+/* headline + CTA */
+.fmd-copy{position:relative;z-index:5;text-align:center;margin-top:clamp(-40px,-3vw,-10px);padding:0 20px}
+.fmd-headline{display:flex;flex-wrap:wrap;justify-content:center;gap:0 .35em;
+  font-weight:800;font-size:clamp(26px,4.6vw,64px);letter-spacing:-.02em;line-height:1.05}
+.fmd-headline span{display:inline-block;opacity:0;transform:translateY(40px);filter:blur(12px);will-change:transform,opacity,filter}
+.fmd-headline span:last-child{color:var(--azure)}
+.fmd-sub{margin:14px auto 0;max-width:560px;color:var(--muted);font-size:clamp(14px,1.3vw,17px);line-height:1.6;opacity:0;transform:translateY(16px)}
+.fmd-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px;opacity:0;transform:translateY(20px)}
+.fmd-cta .fmd-note{flex-basis:100%;font-size:12px;letter-spacing:.08em;color:var(--muted);margin-top:4px}
+
+/* chapter labels + progress */
+.fmd-steps{position:absolute;left:clamp(18px,4vw,48px);bottom:clamp(20px,5vh,44px);display:flex;flex-direction:column;gap:8px;z-index:7}
+.fmd-steps li{list-style:none;display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);transition:color .5s}
+.fmd-steps li em{font-style:normal;font-weight:600;width:22px;color:inherit}
+.fmd-steps li::after{content:"";height:1px;width:0;background:var(--azure);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.fmd-steps li.on{color:#fff}
+.fmd-steps li.on em{color:var(--azure)}
+.fmd-steps li.on::after{width:28px}
+.fmd-rail{position:absolute;right:clamp(18px,4vw,48px);top:50%;transform:translateY(-50%);width:2px;height:28vh;background:rgba(255,255,255,.1);border-radius:2px;z-index:7;overflow:hidden}
+.fmd-rail i{position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(var(--azure),#fff);transform-origin:top;transform:scaleY(var(--p,0))}
+.fmd-hint{position:absolute;left:50%;bottom:clamp(18px,4vh,36px);transform:translateX(-50%);z-index:7;display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-size:10px;font-weight:600;letter-spacing:.4em;text-transform:uppercase;color:var(--muted);opacity:var(--kick,1);padding-left:.4em}
+.fmd-hint i{width:1px;height:42px;background:linear-gradient(transparent,var(--azure));position:relative;overflow:hidden}
+.fmd-hint i::after{content:"";position:absolute;left:0;top:-40%;width:100%;height:40%;background:#fff;animation:fmd-drip 1.8s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes fmd-drip{to{top:110%}}
+
+/* =========================================================
+   CONTENT (sits on the floating background)
+   ========================================================= */
+.fmd-main{position:relative;z-index:1}
+.fmd-section{padding:clamp(90px,14vh,150px) clamp(20px,5vw,64px);max-width:1240px;margin:0 auto}
+.fmd-eyebrow{font-size:12px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--azure)}
+.fmd-h2{font-weight:800;font-size:clamp(32px,5vw,60px);letter-spacing:-.025em;line-height:1.02;margin-top:14px;max-width:16ch}
+.fmd-lede{color:var(--muted);font-size:clamp(15px,1.3vw,18px);line-height:1.65;margin-top:18px;max-width:56ch}
+.fmd-grid{display:grid;gap:18px;margin-top:48px;grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.fmd-grid{grid-template-columns:1fr}}
+
+.fmd-card{position:relative;padding:34px 30px 30px;border-radius:22px;border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.015));
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  overflow:hidden;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s}
+.fmd-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(500px circle at var(--mx,50%) var(--my,0%),rgba(18,168,255,.16),transparent 45%);opacity:0;transition:opacity .4s}
+.fmd-card:hover{transform:translateY(-6px);border-color:rgba(18,168,255,.45)}
+.fmd-card:hover::before{opacity:1}
+.fmd-card.is-feature{border-color:rgba(18,168,255,.55);background:linear-gradient(160deg,rgba(18,168,255,.2),rgba(18,168,255,.03))}
+.fmd-tag{position:absolute;top:18px;right:18px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;background:var(--azure);color:#00131f;padding:6px 10px;border-radius:999px}
+.fmd-card h3{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.fmd-card p{color:var(--muted);font-size:15px;line-height:1.6;margin-top:10px}
+.fmd-price{display:flex;align-items:baseline;gap:8px;margin-top:26px}
+.fmd-price small{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.fmd-price strong{font-size:46px;font-weight:800;letter-spacing:-.03em}
+.fmd-price strong sup{font-size:.45em;vertical-align:top;margin-right:2px;position:relative;top:.35em}
+.fmd-price em{font-style:normal;color:var(--muted);font-size:15px}
+.fmd-card .fmd-btn{margin-top:24px;width:100%;justify-content:center}
+.fmd-fine{margin-top:20px;font-size:13px;color:rgba(255,255,255,.45)}
+
+.fmd-perks{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px}
+@media (max-width:900px){.fmd-perks{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.fmd-perks{grid-template-columns:1fr}}
+.fmd-perk{padding:26px 24px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.fmd-perk svg{width:28px;height:28px;color:var(--azure)}
+.fmd-perk h4{font-size:16px;font-weight:700;margin-top:16px}
+.fmd-perk p{font-size:14px;line-height:1.55;color:var(--muted);margin-top:6px}
+
+.fmd-final{text-align:center;padding-bottom:clamp(110px,16vh,170px)}
+.fmd-final .fmd-h2{margin-left:auto;margin-right:auto}
+.fmd-final .fmd-lede{margin-left:auto;margin-right:auto}
+.fmd-final .fmd-cta{opacity:1;transform:none;margin-top:34px}
+.fmd-footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:28px clamp(20px,5vw,64px);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.06em;background:rgba(0,0,0,.4);backdrop-filter:blur(10px)}
+
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(34px);transition:opacity 1s cubic-bezier(.2,.8,.2,1),transform 1s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+
+@media (max-width:700px){
+  .fmd-hero{height:520vh}
+  .fmd-car{width:96vw;margin-top:-4vh}
+  .fmd-steps{display:none}
+  .fmd-rail{display:none}
+  .fmd-nav .fmd-logo span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .fmd-hero{height:100vh}
+  .fmd-grain,.fmd-hint i::after{animation:none}
+  .rv{opacity:1;transform:none;transition:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="fmd-float" aria-hidden="true"></canvas>
+<!-- PREVIEW ONLY: background switcher. Delete before launch. -->
+<div id="fmd-bgswitch"><span>Background</span><button data-mode="streaks">Light streaks</button><button data-mode="ripples">Ripples</button></div>
+
+<header class="fmd-nav" id="fmd-nav">
+  <a class="fmd-logo" href="#top"><strong>FRESH<i>.</i></strong><span>Mobile Detailing</span></a>
+  <!-- TODO: replace with the real Fresh Mobile Detailing number -->
+  <a class="fmd-btn fmd-btn--primary" href="tel:+14170000000">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+    Call Now
+  </a>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="fmd-hero" id="top" aria-label="Fresh Mobile Detailing">
+  <div class="fmd-stage" id="fmd-stage">
+    <div class="fmd-glow"></div>
+    <div class="fmd-beams"></div>
+    <div class="fmd-floorline"></div>
+    <canvas id="fmd-icv" aria-hidden="true"></canvas>
+    <div class="fmd-iris" id="fmd-iris" aria-hidden="true"></div>
+
+    <div class="fmd-word" aria-hidden="true"><span>FRESH</span></div>
+    <p class="fmd-kicker">Mobile Detailing <b>·</b> Springfield, MO</p>
+
+    <div class="fmd-car" id="fmd-car">
+      <canvas id="fmd-cv" role="img" aria-label="A matte black Mercedes-AMG GT goes from dusty to showroom clean, inside and out"></canvas>
+    </div>
+
+    <div class="fmd-copy">
+      <h1 class="fmd-headline" aria-label="Clean. Precise. Professional. On Demand.">
+        <span>Clean.</span><span>Precise.</span><span>Professional.</span><span>On&nbsp;Demand.</span>
+      </h1>
+      <p class="fmd-sub">Inside and out, showroom-level detailing at your home or office across Springfield, MO. Same-day appointments. We bring the water and power.</p>
+      <div class="fmd-cta">
+        <a class="fmd-btn fmd-btn--primary" href="tel:+14170000000">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+          Call Now
+        </a>
+        <a class="fmd-btn fmd-btn--ghost" href="#book">Book Online</a>
+        <span class="fmd-note">Packages from $120 · Unlimited memberships from $95/mo</span>
+      </div>
+    </div>
+
+    <ul class="fmd-steps" aria-hidden="true">
+      <li data-step="0"><em>01</em>We come to you</li>
+      <li data-step="1"><em>02</em>Exterior</li>
+      <li data-step="2"><em>03</em>Interior</li>
+      <li data-step="3"><em>04</em>Showroom finish</li>
+    </ul>
+    <div class="fmd-rail" aria-hidden="true"><i></i></div>
+    <div class="fmd-hint" aria-hidden="true">Scroll<i></i></div>
+
+    <div class="fmd-vignette"></div>
+    <div class="fmd-grain"></div>
+  </div>
+</section>
+
+<!-- ======================= CONTENT ======================= -->
+<main class="fmd-main">
+  <section class="fmd-section" id="services">
+    <p class="fmd-eyebrow rv">Detailing Packages</p>
+    <h2 class="fmd-h2 rv d1">Pick your clean. We'll handle the rest.</h2>
+    <p class="fmd-lede rv d2">Interior, exterior, or the full treatment — done in your driveway or parking lot while you get on with your day.</p>
+    <div class="fmd-grid">
+      <article class="fmd-card rv">
+        <h3>Exterior Detail</h3>
+        <p>Paint, wheels and glass brought back to a crisp, glossy finish.</p>
+        <div class="fmd-price"><small>From</small><strong><sup>$</sup>120</strong></div>
+        <a class="fmd-btn fmd-btn--ghost" href="#book">Book Exterior</a>
+      </article>
+      <article class="fmd-card is-feature rv d1">
+        <span class="fmd-tag">Most Popular</span>
+        <h3>Interior + Exterior</h3>
+        <p>The complete reset, inside and out. The best value for a truly fresh vehicle.</p>
+        <div class="fmd-price"><small>From</small><strong><sup>$</sup>225</strong></div>
+        <a class="fmd-btn fmd-btn--primary" href="#book">Book Full Detail</a>
+      </article>
+      <article class="fmd-card rv d2">
+        <h3>Interior Detail</h3>
+        <p>Seats, carpets, dash and every surface you touch — cleaned and refreshed.</p>
+        <div class="fmd-price"><small>From</small><strong><sup>$</sup>180</strong></div>
+        <a class="fmd-btn fmd-btn--ghost" href="#book">Book Interior</a>
+      </article>
+    </div>
+    <p class="fmd-fine rv">Final pricing depends on vehicle size and condition.</p>
+  </section>
+
+  <section class="fmd-section" id="memberships">
+    <p class="fmd-eyebrow rv">Unlimited Memberships</p>
+    <h2 class="fmd-h2 rv d1">Always clean. One monthly price.</h2>
+    <p class="fmd-lede rv d2">Unlimited details, billed automatically each month. Keep your vehicle looking new without thinking about it.</p>
+    <div class="fmd-grid">
+      <article class="fmd-card rv">
+        <h3>Exterior Unlimited</h3>
+        <p>Unlimited exterior washes.</p>
+        <div class="fmd-price"><strong><sup>$</sup>95</strong><em>/ month</em></div>
+        <a class="fmd-btn fmd-btn--ghost" href="#book">Join</a>
+      </article>
+      <article class="fmd-card is-feature rv d1">
+        <span class="fmd-tag">Best Value</span>
+        <h3>Interior + Exterior Unlimited</h3>
+        <p>Unlimited interior and exterior details.</p>
+        <div class="fmd-price"><strong><sup>$</sup>195</strong><em>/ month</em></div>
+        <a class="fmd-btn fmd-btn--primary" href="#book">Join</a>
+      </article>
+      <article class="fmd-card rv d2">
+        <h3>Interior Unlimited</h3>
+        <p>Unlimited interior details.</p>
+        <div class="fmd-price"><strong><sup>$</sup>145</strong><em>/ month</em></div>
+        <a class="fmd-btn fmd-btn--ghost" href="#book">Join</a>
+      </article>
+    </div>
+    <p class="fmd-fine rv">Subject to scheduling availability.</p>
+  </section>
+
+  <section class="fmd-section" id="why">
+    <p class="fmd-eyebrow rv">Why Fresh</p>
+    <h2 class="fmd-h2 rv d1">Built around your schedule.</h2>
+    <div class="fmd-perks">
+      <div class="fmd-perk rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h4>Same-day appointments</h4><p>Need it today? We often can.</p></div>
+      <div class="fmd-perk rv d1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/></svg><h4>We bring water &amp; power</h4><p>Fully self-contained. Nothing needed from you.</p></div>
+      <div class="fmd-perk rv d2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><h4>Book 24/7</h4><p>Call, text or book online any time, day or night.</p></div>
+      <div class="fmd-perk rv d3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.6A5 5 0 0 0 18 7h-1.3A8 8 0 1 0 4 15.3"/><path d="M8 19v2M8 13v2M12 21v2M12 15v2M16 19v2M16 13v2"/></svg><h4>Weather? No problem</h4><p>Rain-affected appointments reschedule free.</p></div>
+    </div>
+  </section>
+
+  <section class="fmd-section fmd-final" id="book">
+    <p class="fmd-eyebrow rv">Springfield, MO &amp; 30–45 min around</p>
+    <h2 class="fmd-h2 rv d1">Ready for that fresh feeling?</h2>
+    <p class="fmd-lede rv d2">Tell us where your vehicle is. We'll show up with everything we need.</p>
+    <div class="fmd-cta rv d3">
+      <a class="fmd-btn fmd-btn--primary" href="tel:+14170000000">Call Now</a>
+      <a class="fmd-btn fmd-btn--ghost" href="#book">Book Online</a>
+    </div>
+  </section>
+</main>
+
+<footer class="fmd-footer">
+  <span>© Fresh Mobile Detailing · Springfield, Missouri</span>
+  <span>Clean. Precise. Professional. On Demand.</span>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const seg = (p, a, b) => clamp((p - a) / (b - a));
+  const eio = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;   // easeInOutCubic
+  const eout = t => 1 - Math.pow(1 - t, 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ---------------- HERO ---------------- */
+  const hero = document.getElementById('top');
+  const stage = document.getElementById('fmd-stage');
+  const carEl = document.getElementById('fmd-car');
+  const cv = document.getElementById('fmd-cv');
+  const m = cv.getContext('2d');
+  const icv = document.getElementById('fmd-icv');
+  const ic = icv.getContext('2d');
+  const iris = document.getElementById('fmd-iris');
+  const nav = document.getElementById('fmd-nav');
+  const words = [...document.querySelectorAll('.fmd-headline span')];
+  const sub = document.querySelector('.fmd-sub');
+  const cta = document.querySelector('.fmd-hero .fmd-cta');
+  const steps = [...document.querySelectorAll('.fmd-steps li')];
+
+  // ---- assets (exterior logical space 794 x 652, car occupies 794 x 612; interior photo 2400 x 1800)
+  const SRC = { clean:'img/ext-clean.webp', dirty:'img/ext-dirty.webp', lines:'img/ext-lines.webp', shadow:'img/ext-shadow.webp',
+                iclean:'img/int-clean.webp', idirty:'img/int-dirty.webp' };
+  const IW = 794, IH = 652, CH = 612, TILT = 80, PW = 2400, PH = 1800;
+  const ORX = .504, ORY = .146;                         // push-in point: centre of the rear glass
+  const I = {}; let ready = false, mask = null, MW = 0;
+
+  const fxCv = document.createElement('canvas'); fxCv.width = IW * 2; fxCv.height = CH * 2;
+  const f = fxCv.getContext('2d');
+  const offCv = document.createElement('canvas'); const o = offCv.getContext('2d');     // interior reveal pass
+  const mkCv = document.createElement('canvas'); const mk = mkCv.getContext('2d');       // low-res soft mask
+
+  Promise.all(Object.entries(SRC).map(([k, src]) => new Promise(res => {
+    const im = new Image(); im.decoding = 'async'; im.onload = () => { I[k] = im; res(); }; im.onerror = res; im.src = src;
+  }))).then(() => {
+    try {
+      const t = document.createElement('canvas'); t.width = IW * 2; t.height = CH * 2;
+      const tc = t.getContext('2d'); tc.drawImage(I.clean, 0, 0, t.width, t.height);
+      const d = tc.getImageData(0, 0, t.width, t.height).data; MW = t.width;
+      mask = new Uint8Array(t.width * t.height); for (let i = 0; i < mask.length; i++) mask[i] = d[i * 4 + 3];
+    } catch (e) { mask = null; }
+    ready = true;
+  });
+  const onBody = (x, y) => {
+    if (!mask) return y > 60 && y < CH - 30;
+    const xi = x * 2 | 0, yi = y * 2 | 0;
+    return xi >= 0 && yi >= 0 && xi < MW && yi < CH * 2 && mask[yi * MW + xi] > 60;
+  };
+
+  let pT = 0, p = reduce ? 1 : 0, last = performance.now(), prevSx = 0, prevIx = 0, heroVisible = true;
+  let cssW = 0, k = 1, dpr = 1, SW = 0, SH = 0, idpr = 1;
+  const parts = [], steam = [];
+  const glints  = [[247,247,.0],[440,262,.15],[300,146,.3],[770,80,.45],[465,548,.6],[480,80,.75],[40,465,.9]];
+  const iglints = [[785,600,.0],[1490,1230,.18],[1500,690,.32],[1690,690,.46],[1255,1060,.6],[160,610,.74],[1880,690,.88]];
+
+  function sizeCar(){
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    cssW = carEl.offsetWidth; k = cssW / IW;
+    cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssW * IH / IW * dpr);
+    SW = stage.clientWidth; SH = stage.clientHeight; idpr = Math.min(devicePixelRatio || 1, 1.5);
+    icv.width = offCv.width = Math.round(SW * idpr); icv.height = offCv.height = Math.round(SH * idpr);
+    mkCv.width = Math.max(8, Math.round(SW / 14)); mkCv.height = Math.max(8, Math.round(SH / 14));
+  }
+  function readScroll(){
+    const total = hero.offsetHeight - innerHeight;
+    const r = hero.getBoundingClientRect();
+    pT = total > 0 ? clamp(-r.top / total) : 1;
+    heroVisible = r.bottom > 0;
+    nav.classList.toggle('is-solid', scrollY > 40 && r.bottom < innerHeight * .4);
+  }
+
+  const ex = (sx, y) => sx + TILT - 2 * TILT * y / CH;
+  function cleanPath(c, sx){
+    c.beginPath(); c.moveTo(-90, -90); c.lineTo(ex(sx, -90), -90); c.lineTo(ex(sx, CH + 90), CH + 90); c.lineTo(-90, CH + 90); c.closePath();
+  }
+  function emit(sx, n){
+    for (let i = 0, tries = 0; i < n && tries < n * 4; tries++){
+      const y = Math.random() * CH, x = ex(sx, y);
+      if (!onBody(x, y)) continue; i++;
+      const r = Math.random();
+      if (r < .62) parts.push({t:0, x, y, vx: 1.5 + Math.random()*6, vy: -2.4 - Math.random()*3.2, g:.2, life: 40 + Math.random()*40, r: .8 + Math.random()*2, k:'drop'});
+      else if (r < .9) parts.push({t:0, x: x + Math.random()*8, y, vx: .3 + Math.random()*1.4, vy: (Math.random()-.5)*.6, g:.02, life: 50 + Math.random()*50, r: 2 + Math.random()*5, k:'foam'});
+      else parts.push({t:0, x, y, vx: .8 + Math.random()*2.2, vy: -.5 - Math.random(), g:-.004, life: 70 + Math.random()*50, r: 14 + Math.random()*26, k:'mist'});
+    }
+  }
+  function star(c, cx, cy, s, a){
+    c.save(); c.translate(cx, cy); c.globalAlpha = a;
+    const g = c.createRadialGradient(0,0,0,0,0,s*.9);
+    g.addColorStop(0,'rgba(255,255,255,.95)'); g.addColorStop(1,'rgba(18,168,255,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(0,0,s*.9,0,7); c.fill();
+    c.fillStyle = '#fff'; c.beginPath();
+    c.moveTo(0,-s); c.quadraticCurveTo(0,0,s,0); c.quadraticCurveTo(0,0,0,s); c.quadraticCurveTo(0,0,-s,0); c.quadraticCurveTo(0,0,0,-s);
+    c.fill(); c.restore();
+  }
+  const twinkle = (c, list, amt, t, map, size) => list.forEach(([gx, gy, off]) => {
+    const pop = seg(amt, off * .7, off * .7 + .3);
+    const tw = .5 + .5 * Math.sin(t * 2.4 + off * 9);
+    const pulse = pop < 1 ? Math.sin(pop * Math.PI) * 1.6 + pop * .4 : tw;
+    if (pulse > .02){ const [X, Y] = map(gx, gy); star(c, X, Y, size * pulse + 2, Math.min(1, pulse)); }
+  });
+
+  /* ---------- exterior car ---------- */
+  function drawCar(t, s, sx, linesA, scan, dirtA, shadowA, lit){
+    m.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+    m.globalCompositeOperation = 'source-over'; m.globalAlpha = 1;
+    m.clearRect(-20, -20, IW + 40, IH + 40);
+    if (I.shadow){ m.globalAlpha = shadowA; m.drawImage(I.shadow, 0, 0, IW, IH); }
+    if (dirtA > 0){ m.globalAlpha = dirtA; m.drawImage(I.dirty, 0, 0, IW, CH); }
+    if (s > 0){ m.save(); m.globalAlpha = 1; cleanPath(m, sx); m.clip(); m.drawImage(I.clean, 0, 0, IW, CH); m.restore(); }
+
+    if (linesA > 0.002){
+      const scanX = -20 + scan * (IW + 40);
+      m.save(); m.beginPath(); m.rect(-20, -20, scanX + 20, IH + 40); m.clip();
+      m.globalCompositeOperation = 'lighter'; m.globalAlpha = linesA; m.drawImage(I.lines, 0, 0, IW, CH); m.restore();
+      if (scan > 0 && scan < 1){
+        const g = m.createLinearGradient(scanX - 34, 0, scanX + 4, 0);
+        g.addColorStop(0, 'rgba(18,168,255,0)'); g.addColorStop(.85, 'rgba(18,168,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,.9)');
+        m.globalCompositeOperation = 'lighter'; m.globalAlpha = 1; m.fillStyle = g; m.fillRect(scanX - 34, -10, 38, CH + 20);
+      }
+    }
+
+    const barA = seg(p, .18, .2) * (1 - seg(p, .41, .43));
+    const shineA = s * (.55 + .45 * lit);
+    if (barA > 0.002 || shineA > 0.002){
+      f.setTransform(2, 0, 0, 2, 0, 0); f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1; f.clearRect(0, 0, IW, CH);
+      if (shineA > 0.002){
+        f.save(); cleanPath(f, sx); f.clip();
+        const rx = -220 + ((t * 190 + p * 900) % (IW + 440));
+        const g = f.createLinearGradient(rx - 80, 0, rx + 80, 0);
+        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, `rgba(220,240,255,${(.38 * shineA).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+        f.fillStyle = g; f.beginPath(); f.moveTo(rx + 20, 0); f.lineTo(rx + 180, 0); f.lineTo(rx - 20, CH); f.lineTo(rx - 180, CH); f.fill();
+        f.restore();
+      }
+      if (barA > 0.002){
+        f.lineCap = 'round';
+        [[42, `rgba(18,168,255,${.22*barA})`], [15, `rgba(80,190,255,${.55*barA})`], [3.2, `rgba(255,255,255,${barA})`]].forEach(([w, c]) => {
+          f.strokeStyle = c; f.lineWidth = w; f.beginPath(); f.moveTo(ex(sx, -20), -20); f.lineTo(ex(sx, CH + 20), CH + 20); f.stroke();
+        });
+      }
+      f.globalCompositeOperation = 'destination-in'; f.drawImage(I.clean, 0, 0, IW, CH);
+      m.globalCompositeOperation = 'lighter'; m.globalAlpha = 1; m.drawImage(fxCv, 0, 0, IW, CH);
+      if (barA > 0.002){
+        m.globalAlpha = barA * .35; m.strokeStyle = 'rgba(18,168,255,.1)'; m.lineWidth = 50;
+        m.beginPath(); m.moveTo(ex(sx, -10), -10); m.lineTo(ex(sx, CH + 10), CH + 10); m.stroke();
+      }
+    }
+
+    // tail-lights wake up once cleaned
+    [[68,252,120,190],[612,292,560,690]].forEach(([x, y, a, b]) => {
+      const on = seg(sx, a, b) * (.8 + .2 * Math.sin(t * 3 + x));
+      if (on <= 0) return;
+      m.globalCompositeOperation = 'lighter'; m.globalAlpha = on;
+      let g = m.createRadialGradient(x, y, 0, x, y, 60);
+      g.addColorStop(0, 'rgba(255,90,90,.6)'); g.addColorStop(.4, 'rgba(255,40,50,.22)'); g.addColorStop(1, 'rgba(255,0,0,0)');
+      m.fillStyle = g; m.beginPath(); m.arc(x, y, 60, 0, 7); m.fill();
+      g = m.createLinearGradient(x - 90, 0, x + 90, 0);
+      g.addColorStop(0, 'rgba(255,60,60,0)'); g.addColorStop(.5, 'rgba(255,170,170,.5)'); g.addColorStop(1, 'rgba(255,60,60,0)');
+      m.globalAlpha = on * .6; m.fillStyle = g; m.fillRect(x - 90, y - 1, 180, 2);
+    });
+
+    const speed = Math.abs(sx - prevSx); prevSx = sx;
+    if (!reduce && s > 0 && s < 1) emit(sx, Math.min(16, 2 + speed * 1.5));
+    m.globalCompositeOperation = 'lighter'; m.globalAlpha = 1;
+    stepParts(m, parts, 1, IH);
+    m.globalCompositeOperation = 'source-over';
+    const gl = seg(p, .4, .5) * (1 - seg(p, .5, .56)) + seg(p, .9, .97);
+    if (gl > 0) twinkle(m, glints, Math.min(1, gl), t, (x, y) => [x, y], 15);
+  }
+
+  let pdt = 1;
+  function stepParts(c, list, scale, maxY){
+    for (let i = list.length - 1; i >= 0; i--){
+      const q = list[i];
+      q.t += pdt; q.vy += q.g * pdt; q.x += q.vx * pdt; q.y += q.vy * pdt; q.vx *= Math.pow(.985, pdt);
+      const la = 1 - q.t / q.life;
+      if (la <= 0 || q.y > maxY){ list.splice(i, 1); continue; }
+      if (q.k === 'drop'){
+        c.strokeStyle = `rgba(190,232,255,${(.85*la).toFixed(3)})`; c.lineWidth = q.r * 1.3 * scale; c.lineCap = 'round';
+        c.beginPath(); c.moveTo(q.x, q.y); c.lineTo(q.x - q.vx * 1.6, q.y - q.vy * 1.6); c.stroke();
+      } else if (q.k === 'foam'){
+        c.strokeStyle = `rgba(255,255,255,${(.6*la).toFixed(3)})`; c.lineWidth = .8 * scale;
+        c.beginPath(); c.arc(q.x, q.y, q.r * scale, 0, 7); c.stroke();
+      } else {
+        const a = q.k === 'steam' ? .08 : .16;
+        const col = q.k === 'steam' ? '235,245,255' : '18,168,255';
+        const R = q.r * scale * (q.k === 'steam' ? (1 + q.t / q.life * 1.2) : 1);
+        const g = c.createRadialGradient(q.x, q.y, 0, q.x, q.y, R);
+        g.addColorStop(0, `rgba(${col},${(a * Math.sin(Math.min(1, q.t / 12) * Math.PI / 2) * la).toFixed(3)})`); g.addColorStop(1, `rgba(${col},0)`);
+        c.fillStyle = g; c.beginPath(); c.arc(q.x, q.y, R, 0, 7); c.fill();
+      }
+    }
+  }
+
+  /* ---------- interior scene ---------- */
+  function drawInterior(t, si, kb){
+    const W = icv.width, H = icv.height;
+    const sc = Math.max(W / PW, H / PH) * kb;
+    const dw = PW * sc, dh = PH * sc, dx = (W - dw) / 2, dy = (H - dh) * .5;
+    const map = (x, y) => [dx + x * sc, dy + y * sc];
+    ic.setTransform(1, 0, 0, 1, 0, 0); ic.globalCompositeOperation = 'source-over'; ic.globalAlpha = 1;
+    ic.fillStyle = '#000'; ic.fillRect(0, 0, W, H);
+    ic.drawImage(si >= 1 ? I.iclean : I.idirty, dx, dy, dw, dh);
+
+    // steam wave reveal (soft, wavy edge)
+    const edge = -.25 * W + si * 1.5 * W;
+    if (si > 0 && si < 1){
+      const mw = mkCv.width, mh = mkCv.height, s = mw / W;
+      mk.clearRect(0, 0, mw, mh); mk.fillStyle = '#fff'; mk.beginPath(); mk.moveTo(0, 0);
+      for (let i = 0; i <= 28; i++){
+        const y = i / 28 * H;
+        const x = edge + Math.sin(y * .006 + t * 1.6) * W * .035 + Math.sin(y * .017 - t * 2.3) * W * .015 - (y / H) * W * .08;
+        mk.lineTo(x * s, y * s);
+      }
+      mk.lineTo(0, mh); mk.closePath(); mk.fill();
+      o.setTransform(1, 0, 0, 1, 0, 0); o.globalCompositeOperation = 'source-over'; o.clearRect(0, 0, W, H);
+      o.drawImage(I.iclean, dx, dy, dw, dh);
+      o.globalCompositeOperation = 'destination-in'; o.imageSmoothingEnabled = true; o.drawImage(mkCv, 0, 0, W, H);
+      ic.drawImage(offCv, 0, 0);
+      // mist band riding the edge
+      const g = ic.createLinearGradient(edge - W * .16, 0, edge + W * .08, 0);
+      g.addColorStop(0, 'rgba(225,240,255,0)'); g.addColorStop(.7, 'rgba(225,240,255,.14)'); g.addColorStop(1, 'rgba(225,240,255,0)');
+      ic.globalCompositeOperation = 'screen'; ic.fillStyle = g; ic.fillRect(0, 0, W, H);
+      // steam puffs
+      const speed = Math.abs(edge - prevIx);
+      if (!reduce) for (let i = 0; i < Math.min(5, 1 + speed * .05); i++){
+        const y = Math.random() * H;
+        steam.push({t:0, x: edge - (y / H) * W * .08 + (Math.random() - .5) * W * .05, y, vx: (Math.random() - .3) * 1.2 * idpr, vy: -(.6 + Math.random() * 1.6) * idpr, g: -.004, life: 70 + Math.random() * 60, r: (40 + Math.random() * 90) * idpr, k:'steam'});
+      }
+    }
+    prevIx = edge;
+    ic.globalCompositeOperation = 'lighter'; stepParts(ic, steam, 1, H + 200);
+
+    // glossy light sweep + glints once clean
+    const after = seg(p, .78, .86);
+    if (after > 0 && after < 1){
+      const x = -W * .3 + after * W * 1.6;
+      const g = ic.createLinearGradient(x - W * .1, 0, x + W * .1, 0);
+      g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.10)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ic.fillStyle = g; ic.fillRect(0, 0, W, H);
+    }
+    ic.globalCompositeOperation = 'source-over';
+    const gl = seg(p, .76, .86);
+    if (gl > 0) twinkle(ic, iglints, gl, t, map, 22 * idpr * Math.max(.7, Math.min(1.3, W / (1400 * idpr))));
+  }
+
+  function render(now){
+    const dt = Math.min(48, now - last) / 16.67; last = now; pdt = dt;
+    if (!reduce) p += (pT - p) * (1 - Math.pow(1 - .11, dt));
+    if (Math.abs(pT - p) < .0002) p = pT;
+    const t = now / 1000;
+
+    // ---- timeline
+    const scan    = eio(seg(p, 0, .11));
+    const linesA  = seg(p, 0, .03) * (1 - .82 * seg(p, .14, .22)) * (1 - .6 * seg(p, .38, .46));
+    const dirtA   = seg(p, .09, .18);
+    const shadowA = seg(p, .06, .16) * .95;
+    const s       = eio(seg(p, .19, .42));
+    const sx      = -TILT - 30 + s * (IW + TILT * 2 + 60);
+    const lit     = seg(p, .4, .5);
+    const push    = eio(seg(p, .5, .6)) * (1 - eio(seg(p, .86, .93)));     // into the cabin and back out
+    const irisAmt = eio(seg(p, .51, .6)) * (1 - eio(seg(p, .85, .92)));
+    const si      = eio(seg(p, .62, .8));
+    const kb      = 1.14 - .1 * seg(p, .53, .88);
+
+    stage.style.setProperty('--wscale', (1 + seg(p, 0, .2) * .28).toFixed(4));
+    stage.style.setProperty('--wfill', (1 - eio(seg(p, .01, .07))).toFixed(3));
+    stage.style.setProperty('--wstroke', (.16 * seg(p, .03, .12) * (1 - seg(p, .48, .55))).toFixed(3));
+    stage.style.setProperty('--wshine', (100 - ((t * 22) % 140)).toFixed(1) + '%');
+    stage.style.setProperty('--kick', (1 - seg(p, .02, .07)).toFixed(3));
+    stage.style.setProperty('--clean', (s * (1 - push)).toFixed(3));
+    stage.style.setProperty('--glow', (.12 + .88 * eio(seg(p, .24, .5))).toFixed(3));
+    stage.style.setProperty('--beams', (seg(p, .38, .5) * (1 - push)).toFixed(3));
+
+    // car: push toward the rear glass, then settle smaller for the headline
+    const base = .9 + .1 * eout(seg(p, 0, .2)) - .1 * eio(seg(p, .9, .98));
+    carEl.style.setProperty('--cscale', (base * (1 + push * 3.5)).toFixed(4));
+    carEl.style.opacity = (1 - seg(push, .2, .6)).toFixed(3);
+    carEl.style.filter = push > .01 ? `blur(${(push * 6).toFixed(1)}px)` : 'none';
+
+    // iris into the interior
+    const cr = carEl.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    const cx = cr.left - sr.left + ORX * cr.width, cy = cr.top - sr.top + ORY * cr.height;
+    const far = Math.hypot(Math.max(cx, SW - cx), Math.max(cy, SH - cy)) + 40;
+    const R = irisAmt * far;
+    if (R > .5){
+      icv.style.visibility = 'visible';
+      icv.style.clipPath = `circle(${R.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`;
+      iris.style.cssText = `opacity:${(irisAmt > .02 && irisAmt < .98 ? 1 : 0)};width:${2*R}px;height:${2*R}px;left:${cx - R}px;top:${cy - R}px`;
+      if (ready) drawInterior(t, si, kb);
+    } else { icv.style.visibility = 'hidden'; iris.style.opacity = 0; }
+
+    // headline + CTA
+    words.forEach((w, i) => {
+      const a = eout(seg(p, .9 + i*.018, .94 + i*.018));
+      w.style.opacity = a; w.style.transform = `translateY(${(1-a)*40}px)`; w.style.filter = `blur(${(1-a)*12}px)`;
+    });
+    const sa = eout(seg(p, .95, .985));
+    sub.style.opacity = sa; sub.style.transform = `translateY(${(1-sa)*16}px)`;
+    const ca = eout(seg(p, .96, 1));
+    cta.style.opacity = ca; cta.style.transform = `translateY(${(1-ca)*20}px)`;
+    cta.style.pointerEvents = ca > .5 ? 'auto' : 'none';
+    const step = p < .19 ? 0 : p < .52 ? 1 : p < .87 ? 2 : 3;
+    steps.forEach((li, i) => li.classList.toggle('on', i === step));
+    stage.style.setProperty('--p', p.toFixed(4));
+
+    if (ready && heroVisible && push < .98) drawCar(t, s, sx, linesA, scan, dirtA, shadowA, lit);
+
+    floatFrame(now, dt);
+    requestAnimationFrame(render);
+  }
+
+  /* ---------------- FLOATING BACKGROUND ---------------- */
+  // Two styles: 'streaks' (showroom light streaks) and 'ripples' (dark water surface).
+  // Pick one for production by setting BG_MODE and deleting the #fmd-bgswitch element.
+  let BG_MODE = location.hash === '#ripples' ? 'ripples' : 'streaks';
+  const fc = document.getElementById('fmd-float');
+  const g2 = fc.getContext('2d');
+  let FW = 0, FH = 0, fdpr = 1, lastY = scrollY, scrollV = 0, scrollAcc = 0;
+  let strips = [], glints2 = [];
+  const mouse = {x: -9999, y: -9999}, mSmooth = {x: .5, y: .5};
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  /* ----- light streaks ----- */
+  function buildStrips(){
+    const n = FW < 700 ? 9 : 15;
+    strips = Array.from({length: n}, (_, i) => {
+      const wide = Math.random() < .45;
+      return {
+        x: rnd(0, 1),                                   // position across the sweep (0..1)
+        w: wide ? rnd(140, 360) : rnd(18, 70),
+        a: wide ? rnd(.07, .13) : rnd(.09, .18),
+        col: Math.random() < .6 ? '18,168,255' : '210,235,255',
+        core: !wide && Math.random() < .7,
+        speed: rnd(.006, .018) * (Math.random() < .5 ? 1 : -1) * .1,
+        depth: rnd(.2, 1),
+        ph: rnd(0, 7)
+      };
+    });
+    glints2 = Array.from({length: Math.round(FW * FH / 26000)}, () => ({x: Math.random(), y: Math.random(), z: rnd(.2, 1), ph: rnd(0, 7), sp: rnd(.6, 1.8)}));
+  }
+  function drawStreaks(t){
+    const ang = -0.52 + (mSmooth.x - .5) * .06;              // ~ -30deg, tilts slightly with the cursor
+    const diag = Math.hypot(FW, FH), span = diag + 900;
+    // glossy base: a big soft sheen like light on a dark panel
+    const sheenY = FH * (.25 + .15 * Math.sin(t * .00012)) - (scrollAcc * .05 % FH);
+    let g = g2.createRadialGradient(FW * .7, sheenY, 0, FW * .7, sheenY, diag * .6);
+    g.addColorStop(0, 'rgba(18,110,190,.16)'); g.addColorStop(.5, 'rgba(10,50,90,.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    g2.fillStyle = g; g2.fillRect(0, 0, FW, FH);
+
+    g2.save(); g2.translate(FW / 2, FH / 2); g2.rotate(ang);
+    g2.globalCompositeOperation = 'lighter';
+    strips.forEach(s => {
+      const off = s.x * span + t * s.speed * 60 + scrollAcc * s.depth * .55 + (mSmooth.x - .5) * 80 * s.depth;
+      const x = ((off % span) + span) % span - span / 2;
+      const breathe = .75 + .25 * Math.sin(t * .0007 + s.ph);
+      const A = s.a * breathe;
+      g = g2.createLinearGradient(x - s.w / 2, 0, x + s.w / 2, 0);
+      g.addColorStop(0, `rgba(${s.col},0)`); g.addColorStop(.5, `rgba(${s.col},${A.toFixed(3)})`); g.addColorStop(1, `rgba(${s.col},0)`);
+      g2.fillStyle = g; g2.fillRect(x - s.w / 2, -diag, s.w, diag * 2);
+      if (s.core){
+        // bright hairline with a travelling hot-spot, like a light bar reflection
+        const hy = ((t * .05 * s.depth + s.ph * 300) % (diag * 2)) - diag;
+        const cg = g2.createLinearGradient(0, hy - diag * .5, 0, hy + diag * .5);
+        cg.addColorStop(0, 'rgba(255,255,255,0)'); cg.addColorStop(.5, `rgba(235,247,255,${(.55 * breathe).toFixed(3)})`); cg.addColorStop(1, 'rgba(255,255,255,0)');
+        g2.fillStyle = cg; g2.fillRect(x - .75, -diag, 1.5, diag * 2);
+      }
+    });
+    g2.restore();
+    // faint dust glints catching the light
+    glints2.forEach(d => {
+      const a = Math.max(0, Math.sin(t * .001 * d.sp + d.ph)) ** 6 * d.z;
+      if (a < .02) return;
+      const y = ((d.y * FH - scrollAcc * d.z * .2) % FH + FH) % FH;
+      g2.fillStyle = `rgba(220,240,255,${a.toFixed(3)})`; g2.fillRect(d.x * FW, y, 1.5, 1.5);
+    });
+    g2.globalCompositeOperation = 'source-over';
+  }
+
+  /* ----- water ripples ----- */
+  // A height-field water simulation at low resolution, lit from the top-left and scaled up smoothly.
+  let RW = 0, RH = 0, RC = 5, rA, rB, rImg, rCv, rCtx, lastDrop = 0, nextGap = 400, lastMx = -1, lastMy = -1;
+  function buildRipples(){
+    RC = FW < 700 ? 4 : 5;
+    RW = Math.ceil(FW / RC) + 2; RH = Math.ceil(FH / RC) + 2;
+    rA = new Float32Array(RW * RH); rB = new Float32Array(RW * RH);
+    rCv = document.createElement('canvas'); rCv.width = RW; rCv.height = RH; rCtx = rCv.getContext('2d');
+    rImg = rCtx.createImageData(RW, RH);
+    const d = rImg.data; for (let i = 0; i < d.length; i += 4){ d[i] = 3; d[i+1] = 8; d[i+2] = 14; d[i+3] = 255; }
+  }
+  function drop(px, py, rad, str){
+    if (!rA) return;
+    const cx = px / RC + 1 | 0, cy = py / RC + 1 | 0, r = Math.max(1.5, rad / RC);
+    for (let y = -Math.ceil(r); y <= r; y++) for (let x = -Math.ceil(r); x <= r; x++){
+      const dd = Math.hypot(x, y); if (dd > r) continue;
+      const X = cx + x, Y = cy + y; if (X < 1 || Y < 1 || X >= RW - 1 || Y >= RH - 1) continue;
+      rA[Y * RW + X] -= str * (Math.cos(dd / r * Math.PI) + 1) * .5;
+    }
+  }
+  function drawRipples(t){
+    // cursor trail
+    if (mouse.x > -999){
+      const d = Math.hypot(mouse.x - lastMx, mouse.y - lastMy);
+      if (lastMx < 0) { lastMx = mouse.x; lastMy = mouse.y; }
+      else if (d > 7){ drop(mouse.x, mouse.y, 12, Math.min(70, 14 + d * 1.1)); lastMx = mouse.x; lastMy = mouse.y; }
+    }
+    // ambient drips
+    if (!reduce && t - lastDrop > nextGap){ drop(rnd(0, FW), rnd(0, FH), rnd(10, 22), rnd(140, 260)); lastDrop = t; nextGap = rnd(650, 1700); }
+    // scrolling stirs the surface a little
+    if (Math.abs(scrollV) > 6 && Math.random() < .25) drop(rnd(0, FW), scrollV > 0 ? FH - 4 : 4, rnd(14, 26), Math.min(120, Math.abs(scrollV) * 3));
+    // step
+    const W = RW, damp = .985;
+    for (let y = 1; y < RH - 1; y++){ let i = y * W + 1; for (let x = 1; x < W - 1; x++, i++){
+      rB[i] = ((rA[i-1] + rA[i+1] + rA[i-W] + rA[i+W]) * .5 - rB[i]) * damp;
+    } }
+    const tmp = rA; rA = rB; rB = tmp;
+    // shade
+    const d = rImg.data;
+    for (let y = 1; y < RH - 1; y++){ let i = y * W + 1; for (let x = 1; x < W - 1; x++, i++){
+      const l = ((rA[i-1] - rA[i+1]) * .6 + (rA[i-W] - rA[i+W]) * .8) * .011;
+      const hi = l > 0 ? l : 0, sh = l < 0 ? Math.min(.7, -l * 1.4) : 0;
+      const spec = hi > .5 ? (hi - .5) * 1.8 : 0;
+      const k = 1 - sh, o = i * 4;
+      d[o]   = (3  + 20 * hi + 210 * spec) * k;
+      d[o+1] = (8  + 150 * hi + 225 * spec) * k;
+      d[o+2] = (14 + 235 * hi + 235 * spec) * k;
+    } }
+    rCtx.putImageData(rImg, 0, 0);
+    g2.imageSmoothingEnabled = true; g2.imageSmoothingQuality = 'high';
+    g2.drawImage(rCv, 1, 1, RW - 2, RH - 2, 0, 0, (RW - 2) * RC, (RH - 2) * RC);
+    // depth: a soft azure glow under the surface and dark edges
+    let g = g2.createRadialGradient(FW * .72, FH * .2, 0, FW * .72, FH * .2, Math.max(FW, FH) * .8);
+    g.addColorStop(0, 'rgba(18,140,230,.10)'); g.addColorStop(1, 'rgba(18,140,230,0)');
+    g2.globalCompositeOperation = 'lighter'; g2.fillStyle = g; g2.fillRect(0, 0, FW, FH);
+    g2.globalCompositeOperation = 'source-over';
+    g = g2.createRadialGradient(FW / 2, FH / 2, Math.min(FW, FH) * .3, FW / 2, FH / 2, Math.hypot(FW, FH) * .6);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)');
+    g2.fillStyle = g; g2.fillRect(0, 0, FW, FH);
+  }
+  addEventListener('pointerdown', e => { if (BG_MODE === 'ripples') drop(e.clientX, e.clientY, 20, 380); }, {passive: true});
+
+  function sizeFloat(){
+    fdpr = Math.min(devicePixelRatio || 1, 2);
+    FW = innerWidth; FH = innerHeight;
+    fc.width = FW * fdpr; fc.height = FH * fdpr; g2.setTransform(fdpr, 0, 0, fdpr, 0, 0);
+    buildStrips(); buildRipples();
+  }
+
+  function floatFrame(now, dt){
+    const heroEnd = hero.offsetTop + hero.offsetHeight;
+    const fade = reduce ? 1 : clamp((scrollY - (heroEnd - innerHeight * 1.05)) / (innerHeight * .45));
+    fc.style.opacity = fade.toFixed(3);
+    const sw = document.getElementById('fmd-bgswitch'); if (sw) sw.classList.toggle('on', fade > .6);
+    if (fade <= 0) { lastY = scrollY; return; }
+    const dy = scrollY - lastY; lastY = scrollY;
+    scrollV += (dy - scrollV) * .2; scrollAcc += dy;
+    if (mouse.x > -999){ mSmooth.x += (mouse.x / FW - mSmooth.x) * .04; mSmooth.y += (mouse.y / FH - mSmooth.y) * .04; }
+    g2.setTransform(fdpr, 0, 0, fdpr, 0, 0);
+    g2.globalCompositeOperation = 'source-over'; g2.globalAlpha = 1;
+    g2.clearRect(0, 0, FW, FH);
+    if (BG_MODE === 'ripples') drawRipples(now); else drawStreaks(now);
+  }
+
+  // preview-only switcher
+  document.querySelectorAll('#fmd-bgswitch button').forEach(b => {
+    b.classList.toggle('sel', b.dataset.mode === BG_MODE);
+    b.addEventListener('click', () => {
+      BG_MODE = b.dataset.mode;
+      document.querySelectorAll('#fmd-bgswitch button').forEach(x => x.classList.toggle('sel', x === b));
+      try { history.replaceState(null, '', '#' + BG_MODE); } catch (e) {}
+    });
+  });
+
+addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, {passive: true});
+  addEventListener('pointerleave', () => { mouse.x = mouse.y = -9999; });
+  addEventListener('scroll', readScroll, {passive: true});
+  addEventListener('resize', () => { sizeCar(); sizeFloat(); readScroll(); });
+
+  // card spotlight
+  document.querySelectorAll('.fmd-card').forEach(c => c.addEventListener('pointermove', e => {
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }));
+
+  // reveal on scroll
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: .15, rootMargin: '0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+  sizeCar(); sizeFloat(); readScroll();
+  requestAnimationFrame(t => { last = t; render(t); });
+})();
+</script>
+</body>
+</html>
